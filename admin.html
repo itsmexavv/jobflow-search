@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JobFlow Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a1a;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.1);--text:#f0f0ff;--text2:#a0a0c0;--muted:#6a6a8e;--accent:#667eea;--grad:linear-gradient(135deg,#667eea,#764ba2);--r:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px}
+.container{max-width:1000px;margin:0 auto}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:8px}
+h1 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:var(--muted);margin-bottom:32px;font-size:.9rem}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+.stat-card .num{font-size:2rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card .label{font-size:.8rem;color:var(--muted);margin-top:4px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:24px}
+.section h2{font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:8px 12px;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text2)}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:8px}
+.bar{flex:1;background:var(--grad);border-radius:6px 6px 0 0;min-width:20px;position:relative;transition:all .3s}
+.bar:hover{opacity:.8}
+.bar-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--muted);white-space:nowrap}
+.bar-val{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--text2)}
+.actions{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.btn{padding:10px 20px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:.85rem;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit}
+.btn:hover{border-color:var(--accent);background:rgba(102,126,234,.1)}
+.btn-primary{background:var(--grad);border:none;color:#fff}
+.btn-primary:hover{box-shadow:0 4px 20px rgba(102,126,234,.3)}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem;margin-bottom:20px;text-decoration:none;transition:color .3s}
+.back-link:hover{color:var(--accent)}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">← Back to JobFlow</a>
+  <h1>📊 <span>Admin Dashboard</span></h1>
+  <p class="subtitle">Monitor your JobFlow website activity and performance</p>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="s-visits">0</div><div class="label">Total Visits</div></div>
+    <div class="stat-card"><div class="num" id="s-searches">0</div><div class="label">Total Searches</div></div>
+    <div class="stat-card"><div class="num" id="s-applies">0</div><div class="label">Apply Clicks</div></div>
+    <div class="stat-card"><div class="num" id="s-saves">0</div><div class="label">Jobs Saved</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="refresh()">🔄 Refresh</button>
+    <button class="btn" onclick="exportData()">📥 Export Data</button>
+    <button class="btn" onclick="if(confirm('Clear all analytics?')){localStorage.removeItem('jf_analytics');refresh()}">🗑️ Reset Stats</button>
+  </div>
+
+  <div class="section">
+    <h2>📈 Searches Over Time</h2>
+    <div class="bar-chart" id="chart"></div>
+  </div>
+
+  <div class="section">
+    <h2>🔍 Recent Search Queries</h2>
+    <table><thead><tr><th>Query</th><th>Time</th></tr></thead><tbody id="search-table"></tbody></table>
+  </div>
+
+  <div class="section">
+    <h2>🔖 User's Saved Jobs</h2>
+    <table><thead><tr><th>Title</th><th>Company</th><th>Location</th></tr></thead><tbody id="saved-table"></tbody></table>
+  </div>
+</div>
+<script>
+function refresh(){
+  const stats=JSON.parse(localStorage.getItem('jf_analytics')||'{"visits":0,"searches":0,"applies":0,"saves":0,"history":[]}');
+  const saved=JSON.parse(localStorage.getItem('jf_saved')||'[]');
+  document.getElementById('s-visits').textContent=stats.visits;
+  document.getElementById('s-searches').textContent=stats.searches;
+  document.getElementById('s-applies').textContent=stats.applies;
+  document.getElementById('s-saves').textContent=stats.saves;
+  // Search table
+  const st=document.getElementById('search-table');
+  if(stats.history.length){
+    st.innerHTML=stats.history.slice(0,20).map(h=>`<tr><td>${h.q}</td><td>${new Date(h.t).toLocaleString()}</td></tr>`).join('');
+  }else st.innerHTML='<tr><td colspan="2" class="empty">No searches yet</td></tr>';
+  // Saved table
+  const sv=document.getElementById('saved-table');
+  if(saved.length){
+    sv.innerHTML=saved.map(j=>`<tr><td>${j.title}</td><td>${j.company}</td><td>${j.location}</td></tr>`).join('');
+  }else sv.innerHTML='<tr><td colspan="3" class="empty">No saved jobs</td></tr>';
+  // Chart - group searches by day
+  const days={};stats.history.forEach(h=>{const d=new Date(h.t).toLocaleDateString('en-US',{month:'short',day:'numeric'});days[d]=(days[d]||0)+1});
+  const chart=document.getElementById('chart');
+  const entries=Object.entries(days).slice(0,10);
+  if(entries.length){
+    const max=Math.max(...entries.map(e=>e[1]));
+    chart.innerHTML=entries.map(([d,c])=>`<div class="bar" style="height:${Math.max(10,(c/max)*100)}%"><div class="bar-val">${c}</div><div class="bar-label">${d}</div></div>`).join('');
+  }else chart.innerHTML='<div class="empty" style="width:100%">No data yet — searches will appear here</div>';
+}
+function exportData(){
+  const stats=JSON.parse(localStorage.getItem('jf_analytics')||'{}');
+  const saved=JSON.parse(localStorage.getItem('jf_saved')||'[]');
+  const data=JSON.stringify({analytics:stats,savedJobs:saved},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='jobflow_admin_data.json';a.click();
+}
+refresh();
+</script>
+</body>
+</html>
