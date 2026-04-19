@@ -156,6 +156,28 @@ function renderJobs(reset){
       </div>
     </div>`}).join('');
   if(reset)$('jobs-grid').innerHTML=html;else $('jobs-grid').insertAdjacentHTML('beforeend',html);
+  
+  // Add LinkedIn / Indeed deep integration
+  if(reset && currentQuery) {
+    const lnkQuery = encodeURIComponent(currentQuery);
+    const lnkLoc = encodeURIComponent(currentLocation || 'Worldwide');
+    const externalHtml = `
+      <div class="job-card" style="background: var(--card); border: 2px dashed var(--accent-1); text-align: center; padding: 32px; animation: fadeInUp .4s ease both;">
+        <h3 style="margin-bottom: 12px; font-size: 1.2rem;">Can't find what you're looking for?</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">Search external global networks for <strong>"${currentQuery}"</strong></p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="https://www.linkedin.com/jobs/search/?keywords=${lnkQuery}&location=${lnkLoc}" target="_blank" rel="noopener" class="btn" style="background: #0077b5; color: white; border: none;">
+            Search on LinkedIn <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-left:8px"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+          </a>
+          <a href="https://www.indeed.com/jobs?q=${lnkQuery}&l=${lnkLoc}" target="_blank" rel="noopener" class="btn" style="background: #2164f4; color: white; border: none;">
+            Search on Indeed
+          </a>
+        </div>
+      </div>
+    `;
+    $('jobs-grid').insertAdjacentHTML('beforeend', externalHtml);
+  }
+
   $('load-more-container').style.display=(currentPage+1)*PER_PAGE<displayedJobs.length?'block':'none';
 }
 
