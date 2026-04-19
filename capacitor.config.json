@@ -1,0 +1,6 @@
+{
+  "appId": "com.itsmexavv.jobflow",
+  "appName": "JobFlow",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

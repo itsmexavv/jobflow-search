@@ -1,0 +1,20 @@
+{
+  "name": "jobflow-search",
+  "version": "1.0.0",
+  "description": "JobFlow - Free Job Search Platform",
+  "main": "index.html",
+  "scripts": {
+    "build": "mkdirp www && copy index.html www\\ && copy admin.html www\\ && copy styles.css www\\ && copy script.js www\\",
+    "cap:init": "npm run build && npx cap add android",
+    "cap:sync": "npm run build && npx cap sync",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "mkdirp": "^3.0.1"
+  }
+}
