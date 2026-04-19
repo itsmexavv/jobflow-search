@@ -116,7 +116,7 @@ function renderCategories(){
 
 function applyFilters(){
   let jobs=[...allJobs];const q=currentQuery.toLowerCase(),loc=currentLocation.toLowerCase(),type=$('filter-type').value,cat=$('filter-category').value;
-  if(q)jobs=jobs.filter(j=>j.title.toLowerCase().includes(q)||j.company.toLowerCase().includes(q)||j.category.toLowerCase().includes(q)||j.tags.some(t=>t.toLowerCase().includes(q))||j.excerpt.toLowerCase().includes(q));
+  if(q)jobs=jobs.filter(j=>j.title.toLowerCase().includes(q)||j.company.toLowerCase().includes(q)||j.category.toLowerCase().includes(q)||j.tags.some(t=>t.toLowerCase().includes(q)));
   if(loc)jobs=jobs.filter(j=>j.location.toLowerCase().includes(loc));
   if(type)jobs=jobs.filter(j=>j.type===type);
   if(cat)jobs=jobs.filter(j=>j.category.toLowerCase().includes(cat.toLowerCase()));
